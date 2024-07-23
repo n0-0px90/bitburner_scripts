@@ -1,23 +1,20 @@
 /** @param {NS} ns */
 export async function main(ns) {
   const my_level = ns.getHackingLevel()
-  const files = ["auto_roots.js", "calc_ram.js", "money_print.js"]
-  var get_neighbors = ns.scan()
-  for (var host of get_neighbors) {
-    var required_ports = ns.getServerNumPortsRequired(host)
-    var hacking_level = ns.getServerRequiredHackingLevel(host)
-    nuke_hosts(ns, host, required_ports, hacking_level, my_level)
+  const files = ["auto_roots.js", "calc_ram.js", "money_print.js", "kill_all.js"]
+  let get_neighbors = ns.scan();
+  get_neighbors = get_neighbors.slice(0, 7);
+  for (let host of get_neighbors) {
+    let required_ports = ns.getServerNumPortsRequired(host)
+    let hacking_level = ns.getServerRequiredHackingLevel(host)
+    await nuke_hosts(ns, host, required_ports, hacking_level, my_level)
     ns.scp(files, host, "home")
-    ns.exec("auto_roots.js", host)
-    await ns.sleep(500)
-  }
-  await ns.sleep(10000)
-  for (let host of get_neighbors){
-    if (ns.isRunning("auto_roots.js", host)) {
-      await ns.sleep(500)
-      ns.scriptKill("auto_roots.js", host)
+    if(ns.isRunning("auto_roots.js", host) == false){
+      ns.exec("auto_roots.js", host);
     }
+    await ns.sleep(500);
   }
+  await ns.sleep(10000);
   ns.scriptKill("auto_roots.js", ns.getHostname())
 }
 /** @param {NS} ns  Collection of all functions passed to script
@@ -27,15 +24,18 @@ export async function main(ns) {
  *  @param {Number} my_level  your hack level
 */
 export async function nuke_hosts(ns, host, required_ports, hacking_level, my_level) {
-  if (my_level < hacking_level) {
-    ns.tprint("Failed to hack ", host, " level not high enough.")
-  } else {
-    if (required_ports <= 2) {
-      ns.brutessh(host)
-      ns.ftpcrack(host)
-      ns.nuke(host)
+  var hacking_progs = [ns.brutessh, ns.ftpcrack, ns.relaysmtp, ns.httpworm, ns.sqlinject];
+  for(var ports=0; ports<=required_ports; ports++){
+    try{
+    if(required_ports == 0){
+      ns.nuke(host);
     } else {
-      ns.tprint("Failed to hack ", host, ", missing required programs to open ports.")
+      var script = hacking_progs[ports];
+      script(host);
+      ns.nuke(host);
     }
+    } catch (e) {
+      ns.print(e);
+    }    
   }
 }

@@ -1,8 +1,8 @@
 /** @param {NS} ns */
 export async function main(ns) {
-  var svhostname = ns.getHostname()
-  var set_max_money = ns.getServerMaxMoney(svhostname) * .75
-  var set_min_sec = ns.getServerMinSecurityLevel(svhostname) + 3
+  let svhostname = ns.args[0];
+  let set_max_money = ns.args[1];
+  let set_min_sec = ns.args[2];
   while (true) {
     if (ns.getServerSecurityLevel(svhostname) > set_min_sec) {
       await ns.weaken(svhostname)

@@ -12,9 +12,9 @@ export async function main(ns) {
       let node_ram = ns.hacknet.getRamUpgradeCost(node)
       let node_core = ns.hacknet.getCoreUpgradeCost(node)
       let node_level = ns.hacknet.getLevelUpgradeCost(node)
-      purchase_upgrade_cost_core(ns, node_core, node, current_money)
-      purchase_upgrade_cost_ram(ns, node_ram, node, current_money)
-      purchase_upgrade_cost_level(ns, node_level, node, current_money)
+      await purchase_upgrade_cost_core(ns, node_core, node, current_money)
+      await purchase_upgrade_cost_ram(ns, node_ram, node, current_money)
+      await purchase_upgrade_cost_level(ns, node_level, node, current_money)
     }
   }
 }
