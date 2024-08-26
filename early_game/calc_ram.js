@@ -12,7 +12,8 @@ export async function main(ns) {
 
 /** Calculate how many threads you can use to run money_print.js 
  * @param {Number} max_ram The ram the server has
- * @returns The threads the server can use
+ * @returns The threads the server can use  
+ * Rudimentary math that gives an approximate thread return.  
  */
 async function calc_ram(max_ram){
   let threads = Math.floor(max_ram / 2.2)
@@ -21,4 +22,3 @@ async function calc_ram(max_ram){
   }
   return threads;
 }
-
