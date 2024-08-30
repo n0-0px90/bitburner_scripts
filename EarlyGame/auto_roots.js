@@ -1,17 +1,28 @@
 /** @param {NS} ns */
 export async function main(ns) {
-  const files = ["auto_roots.js", "calc_ram.js", "money_print.js"];
-  let target = ns.args[0];
   let saStartNode = ['home'];
-  let get_neighbors = await get_nodes(ns, saStartNode);
+  const get_neighbors = await get_nodes(ns, saStartNode);
+  const files = ["calc_ram.js", "money_print.js"];
+  let target = ns.args[0];
+  if(target == null){
+    let objServers = get_neighbors.map(ns.getServer);
+    objServers.sort((a, b) => a.moneyMax - b.moneyMax);
+    for(let host of objServers){
+      ns.print(host.hostname + " " + host.requiredHackingSkill + "\nSecurity: " + host.minDifficulty + "\nMax Money:" + host.moneyMax);
+    }
+    ns.tprint("syntax: auto_roots.js <target>");
+    ns.tprint("This is a simple file that scans and attacks for you.");
+    return;
+  }
+  let _ = get_neighbors.shift(); //Gets rid of home, this is where you start and where the script will be located anyway.
   for (let host of get_neighbors) {
     let required_ports = ns.getServerNumPortsRequired(host)
-    await nuke_hosts(ns, host, required_ports)
+    if (!ns.hasRootAccess(host)) {
+      await nuke_hosts(ns, host, required_ports)
+    }
     await copy_run_kill(ns, target, host, files)
-    await ns.sleep(250);
   }
-  await ns.sleep(1000);
-  ns.spawn("calc_ram.js", { threads: 1, spawnDelay: 10000 }, target);
+  ns.spawn("calc_ram.js", { threads: 1, spawnDelay: 0 }, target);
 }
 
 /**@param {NS} ns Scripts needed to work
@@ -25,16 +36,16 @@ export async function main(ns) {
 //Returns saVisisted  
 //NOTE this may jack something up later on  
 */
-async function get_nodes(ns, saStartNode){
+async function get_nodes(ns, saStartNode) {
   let saVisited = saStartNode;
   let saNode0 = ns.scan('home');
-  while (saNode0.length > 0){
+  while (saNode0.length > 0) {
     let sCurrentNode = saNode0.shift();
-    if (saVisited.includes(sCurrentNode) == false){
+    if (saVisited.includes(sCurrentNode) == false) {
       saVisited.push(sCurrentNode);
       let saFollowonNodes = ns.scan(sCurrentNode);
-      for (let i = 0; i < saFollowonNodes.length; i++){
-        if (saVisited.includes(saFollowonNodes[i]) == false){
+      for (let i = 0; i < saFollowonNodes.length; i++) {
+        if (saVisited.includes(saFollowonNodes[i]) == false) {
           saNode0.push(saFollowonNodes[i]);
         }
       }
@@ -54,13 +65,13 @@ async function copy_run_kill(ns, target, host, files) {
   ns.scp(files, host, "home")
   let host_processes = ns.ps(host);
   if (host_processes.length == 0) {
-    ns.exec("auto_roots.js", host, 1, target)
+    ns.exec("calc_ram.js", host, 1, target)
   } else {
     for (let process of host_processes) {
       var script_name = process.filename
-      if (script_name != "auto_roots.js") {
+      if (script_name != "calc_ram.js") {
         ns.kill(process.pid);
-        ns.exec("auto_roots.js", host, 1, target)
+        ns.exec("calc_ram.js", host, 1, target)
       }
     }
   }

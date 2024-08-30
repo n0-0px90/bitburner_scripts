@@ -5,7 +5,7 @@ export async function main(ns) {
     let node_price = ns.hacknet.getPurchaseNodeCost()
     let current_money = ns.getServerMoneyAvailable("home")
     if (current_money >= node_price) {
-      let _ = ns.hacknet.purchaseNode()
+      let _ = ns.hacknet.purchaseNode();
     }
     let nodes_owned = ns.hacknet.numNodes()
     for (let node = 0; node < nodes_owned; node++) {
