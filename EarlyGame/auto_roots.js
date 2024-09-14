@@ -2,16 +2,18 @@
 export async function main(ns) {
   let saStartNode = ['home'];
   const get_neighbors = await get_nodes(ns, saStartNode);
-  const files = ["calc_ram.js", "money_print.js"];
+  const files = ["calc_ram.js", "money_print.js", "calc_share.js", "share.js"];
   let target = ns.args[0];
   if(target == null){
     let objServers = get_neighbors.map(ns.getServer);
     objServers.sort((a, b) => a.moneyMax - b.moneyMax);
+    ns.clearLog();
     for(let host of objServers){
-      ns.print(host.hostname + " " + host.requiredHackingSkill + "\nSecurity: " + host.minDifficulty + "\nMax Money:" + host.moneyMax);
+      let hMaxMoney = ns.formatNumber(host.moneyMax);
+      ns.print("=============\n" +host.hostname + "\nSkill Required: " + host.requiredHackingSkill + "\nSecurity: " + host.minDifficulty + "\nMax Money:" + hMaxMoney);
     }
-    ns.tprint("syntax: auto_roots.js <target>");
-    ns.tprint("This is a simple file that scans and attacks for you.");
+    ns.print("syntax: auto_roots.js <target>");
+    ns.print("This is a simple file that scans and attacks for you.");
     return;
   }
   let _ = get_neighbors.shift(); //Gets rid of home, this is where you start and where the script will be located anyway.
@@ -22,7 +24,6 @@ export async function main(ns) {
     }
     await copy_run_kill(ns, target, host, files)
   }
-  ns.spawn("calc_ram.js", { threads: 1, spawnDelay: 0 }, target);
 }
 
 /**@param {NS} ns Scripts needed to work
@@ -101,3 +102,4 @@ async function nuke_hosts(ns, host, required_ports) {
     }
   }
 }
+
