@@ -1,5 +1,8 @@
-/** @param {NS} ns */
+0/** @param {NS} ns */
 export async function main(ns) {
+  ns.disableLog("hack");
+  ns.disableLog("grow");
+  ns.disableLog("weaken");
   let svhostname = ns.args[0];
   let set_max_money = ns.args[1];
   let set_min_sec = ns.args[2];
@@ -9,7 +12,7 @@ export async function main(ns) {
     let currentMoneyAvailable = ns.getServerMoneyAvailable(svhostname);
     let normal_money_number = ns.formatNumber(currentMoneyAvailable);
     ns.clearLog();
-    ns.print("Maximum Money: $" + normal_max_money + "\nCurrent Money: $" + normal_money_number +"\nCurrent Security: " + Math.floor(currentSecurityLevel));
+    ns.print("Current Target: " + svhostname + "\nMaximum Money: $" + normal_max_money + "\nCurrent Money: $" + normal_money_number +"\nCurrent Security: " + Math.floor(currentSecurityLevel));
     if (currentSecurityLevel > set_min_sec) {
       await time(ns, svhostname, 2)
       await ns.weaken(svhostname)
