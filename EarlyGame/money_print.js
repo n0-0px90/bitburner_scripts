@@ -9,7 +9,7 @@ export async function main(ns) {
     let currentMoneyAvailable = ns.getServerMoneyAvailable(svhostname);
     let normal_money_number = ns.formatNumber(currentMoneyAvailable);
     ns.clearLog();
-    ns.print("Maximum Money: $" + normal_max_money + "\nCurrent Money: $" + normal_money_number +"\nCurrent Security: " + currentSecurityLevel);
+    ns.print("Maximum Money: $" + normal_max_money + "\nCurrent Money: $" + normal_money_number +"\nCurrent Security: " + Math.floor(currentSecurityLevel));
     if (currentSecurityLevel > set_min_sec) {
       await time(ns, svhostname, 2)
       await ns.weaken(svhostname)
@@ -34,19 +34,23 @@ async function time(ns, svhostname, isDoing) {
   let tWeakTime = tDate + ns.getWeakenTime(svhostname) / 1000;
   let fHours = Math.floor(tDate / 3600 - 4) % 24;
   let fMinutes = Math.floor(tDate / 60) % 60;
-  ns.printf("Started hack at %d:%d", fHours,fMinutes)
+  let fSeconds = Math.floor(tDate) % 60;
+  ns.printf("Started hack at %d:%d:%d", fHours,fMinutes, fSeconds);
   if (isDoing == 0){
     let fHHours = Math.floor(tHackTime / 3600 - 4 ) % 24;
-    let fHMinutes = Math.floor(fMinutes / 60) % 60;
-    ns.printf("Currently hacking, will complete at %d:%d", fHHours, fHMinutes);
+    let fHMinutes = Math.floor(tHackTime/ 60) % 60;
+    let fHSeconds = Math.floor(tHackTime) % 60;
+    ns.printf("Currently hacking, will complete at %d:%d:%d", fHHours, fHMinutes, fHSeconds);
   } else if (isDoing == 1){
     let fGHours = Math.floor(tGrowTime / 3600 - 4) % 24;
     let fGMinutes = Math.floor(tGrowTime / 60) % 60;
-    ns.printf("Currently growing, will complete at %d:%d", fGHours, fGMinutes);
+    let fGSeconds = Math.floor(tGrowTime) % 60;
+    ns.printf("Currently growing, will complete at %d:%d:%d", fGHours, fGMinutes, fGSeconds);
   } else {
     let fWHours = Math.floor(tWeakTime / 3600 - 4) % 24;
     let fWMinutes = Math.floor(tWeakTime / 60) % 60;
-    ns.printf("Currently weakening, will complete at %d:%d", fWHours, fWMinutes);
+    let fWSeconds = Math.floor(tWeakTime) % 60;
+    ns.printf("Currently weakening, will complete at %d:%d:%d", fWHours, fWMinutes, fWSeconds);
   }
 }
 
