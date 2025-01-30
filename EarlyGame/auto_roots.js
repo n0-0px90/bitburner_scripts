@@ -1,8 +1,13 @@
 /** @param {NS} ns */
 export async function main(ns) {
+  ns.disableLog("brutessh");
+  ns.disableLog("httpworm");
+  ns.disableLog("ftpcrack");
+  ns.disableLog("sqlinject");
+  ns.disableLog("relaysmtp");
   let saStartNode = ['home'];
   const get_neighbors = await get_nodes(ns, saStartNode);
-  const files = ["calc_ram.js", "money_print.js", "calc_share.js", "share.js"];
+  const files = ["scripts/calc_ram.js", "scripts/money_print.js", "scripts/calc_share.js", "scripts/share.js"];
   let target = ns.args[0];
   if(target == null){
     let objServers = get_neighbors.map(ns.getServer);
@@ -10,7 +15,8 @@ export async function main(ns) {
     ns.clearLog();
     for(let host of objServers){
       let hMaxMoney = ns.formatNumber(host.moneyMax);
-      ns.print("=============\n" +host.hostname + "\nSkill Required: " + host.requiredHackingSkill + "\nSecurity: " + host.minDifficulty + "\nMax Money:" + hMaxMoney);
+      ns.tail();
+      ns.print("=============\n" +host.hostname + "\nSkill Required: " + host.requiredHackingSkill + "\nSecurity: " + host.minDifficulty + "\nMax Money: $" + hMaxMoney);
     }
     ns.print("syntax: auto_roots.js <target>");
     ns.print("This is a simple file that scans and attacks for you.");
@@ -22,6 +28,7 @@ export async function main(ns) {
     if (!ns.hasRootAccess(host)) {
       await nuke_hosts(ns, host, required_ports)
     }
+    await grab_everything(ns, host, files);
     await copy_run_kill(ns, target, host, files)
   }
 }
@@ -66,19 +73,17 @@ async function copy_run_kill(ns, target, host, files) {
   ns.scp(files, host, "home")
   let host_processes = ns.ps(host);
   if (host_processes.length == 0) {
-    ns.exec("calc_ram.js", host, 1, target)
+    ns.exec("/scripts/calc_ram.js", host, 1, target)
   } else {
     for (let process of host_processes) {
       var script_name = process.filename
       if (script_name != "calc_ram.js") {
         ns.kill(process.pid);
-        ns.exec("calc_ram.js", host, 1, target)
       }
     }
+    ns.exec("/scripts/calc_ram.js", host, 1, target)
   }
 }
-
-
 
 /** @param {NS} ns  Collection of all functions passed to script
  *  @param {String} host  the host that you are trying to hack
@@ -103,3 +108,19 @@ async function nuke_hosts(ns, host, required_ports) {
   }
 }
 
+/** @param {NS} ns
+ * @param {String} host
+ * @param {String[]} files
+ */
+async function grab_everything(ns, host, files){
+  let saHostFiles = ns.ls(host);
+  for (let file of saHostFiles){
+    if (files.includes(file)){
+      continue;
+    }
+    if (!(file.endsWith(".lit" || ".txt"))){
+      continue;
+    }
+    ns.scp(file, "home", host);
+  }
+}
